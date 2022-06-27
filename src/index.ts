@@ -15,12 +15,12 @@ type DataBase = {
 type QueryConfig<UrDataBase extends DataBase, T extends keyof UrDataBase = keyof UrDataBase, K extends keyof UrDataBase[T] = keyof UrDataBase[T]> = {
     tableName: T,
     where?: {
-        [Field in keyof UrDataBase[T]]?: UrDataBase[T][Field] | {
+        [Field in keyof UrDataBase[T]]?: UrDataBase[T][Field] | null | {
             equal: ">" | "<" | "!=" | ">=" | "<=" | "=",
             value: UrDataBase[T][Field] | null
         }
     } | {
-        [Field in keyof UrDataBase[T]]?: UrDataBase[T][Field] | {
+        [Field in keyof UrDataBase[T]]?: UrDataBase[T][Field] | null | {
             equal: ">" | "<" | "!=" | ">=" | "<=" | "=",
             value: UrDataBase[T][Field] | null
         }
@@ -36,7 +36,7 @@ type QueryConfig<UrDataBase extends DataBase, T extends keyof UrDataBase = keyof
         offset?: number,
         count: number
     },
-    data?: Partial<UrDataBase[T]>,
+    data?: Partial<{[Key in keyof UrDataBase[T]]: UrDataBase[T][Key] | null}>,
     whiteList?: K[],
     transformNullToUndefined?: boolean,
 }
