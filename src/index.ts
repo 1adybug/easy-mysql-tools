@@ -153,7 +153,7 @@ function getConditionString(config: ConditionConfig) {
     }
     const limitString = limit ? "limit ?, ?" : ""
     const queryString = `${whereFieldList.length ? "where" : ""} ${whereFieldList.map((str, index, array) => {
-        if (index === array.length) return str
+        if (index === array.length - 1) return str
         if (wherePlaceList.includes(index)) return `${str} or `
         return `${str} and `
     }).join("")} ${orderList.length ? "order by" : ""} ${orderList.join(", ")} ${limitString}`

@@ -101,7 +101,7 @@ function getConditionString(config) {
     }
     const limitString = limit ? "limit ?, ?" : "";
     const queryString = `${whereFieldList.length ? "where" : ""} ${whereFieldList.map((str, index, array) => {
-        if (index === array.length)
+        if (index === array.length - 1)
             return str;
         if (wherePlaceList.includes(index))
             return `${str} or `;
