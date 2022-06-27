@@ -1,0 +1,21 @@
+{
+    "name": "easy-mysql-tools",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "license": "MIT",
+    "description": "Commonly used tools for mysql",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "scripts": {
+        "build": "npx tsc -p ."
+    },
+    "dependencies": {
+        "mysql2": "^2.3.3"
+    },
+    "devDependencies": {
+        "typescript": "^4.7.4"
+    }
+}
