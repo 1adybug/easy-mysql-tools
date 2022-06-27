@@ -11,9 +11,19 @@
 
 ```shell
 yarn add easy-mysql-tools
+# 或者
+npm i easy-mysql-tools
 ```
 
 ## 使用
+
+简单三个步骤：
+
+1. 使用 `type` 定义你的数据库结构，**不要使用 `interface`**
+2. 使用 `createTools` 创建查询工具合集
+3. 使用 `insert`、`select`、`update`、`remove`、`count`等五种方法进行查询
+
+注意：**使用 `createTools` 时必须提供数据库的类型，否则这个模块便失去了意义**
 
 ```typescript
 import { createTools } from "easy-mysql-tools"
@@ -36,6 +46,7 @@ type MyDatabase = {
 }
 
 // 配置同 MySQL2 的配置
+// 必须提供数据库的类型，否则这个模块便失去了意义
 const tools = createTools<MyDatabase>({
     host: "x.x.x.x",
     user: "root",
@@ -43,8 +54,10 @@ const tools = createTools<MyDatabase>({
     database: "mydatabase"
 })
 
+// 取出五种方法
 const { insert, select, update, remove, count } = tools
 
+// 使用 select 方法
 select({
     // 这里会自动提供所有的表名供你使用
     tableName: "userTable",
@@ -85,9 +98,6 @@ select({
         email: string
     }
 })
-
-
-
 ```
 
 `insert`、`select`、`update`、`remove`、`count` 五个方法的使用方式均一样，传入一个配置文件即可，比如 `count(config)`
@@ -112,7 +122,7 @@ type QueryConfig = {
 type TableName = "userTable" | "articleTable"
 ```
 
-必填项，传入的数据库类型的所有数据表名的联合类型
+**必填项**，类型为传入的数据库类型的所有数据表表名
 
 ### data
 
@@ -137,7 +147,7 @@ type SingleWhere = {
 type Where = SingleWhere | SingleWhere[]
 ```
 
-可选项，对于单个查询条件来说（`where` 是一个 `SingleWhere` 对象），键名为已选数据库的字段，每个字段之间的关系是 `且` 或者说 `And`，键值有两种形式
+可选项，有两种形式，对于单个查询条件来说（`where` 是一个 `SingleWhere` 对象），键名为已选数据库的字段，**每个字段之间的关系是 `且` 或者说 `And`**，键值有两种形式
 
 1. 直接提供一个值，表示等于的情况
 
@@ -145,12 +155,13 @@ type Where = SingleWhere | SingleWhere[]
     const config = {
         tableName: "userTable",
         where: {
-            id: 123
+            id: 123,
+            age: 18
         }
     }
     ```
 
-    此时表示，查询 `id` 等于 `123` 的数据。对于键值为 `null` 的情况，会自动转换为 `id is null`
+    此时表示，查询 `id` 等于 `123` **且** `age` 等于 `18` 的数据。对于键值为 `null` 的情况，会自动转换为 `id is null`
 
 2. 使用对象来表示，小于大于等比较运算符
 
@@ -176,7 +187,7 @@ type Where = SingleWhere | SingleWhere[]
 
     如果比较运算符为 `"<=" | ">="`，则忽略这一条件。
 
-当然，你可以提供多个查询条件（`where` 是一个 `SingleWhere[]` 数组），每个条件之间的关系是 `或` 或者说 `Or`
+当然，你可以提供多个查询条件（`where` 是一个 `SingleWhere[]` 数组），**每个条件之间的关系是 `或` 或者说 `Or`**
 
 ```typescript
 {
@@ -187,7 +198,7 @@ type Where = SingleWhere | SingleWhere[]
 }
 ```
 
-上述代码代表，查询 **`id` 为 `1`** 或者 **`age` 大于等于 `18`** 的记录
+上述代码代表，查询 `id` 为 `1` **或者** `age` 大于等于 `18` 的记录
 
 ### order
 
@@ -254,6 +265,7 @@ type MyDatabase = {
 }
 
 // 配置同 MySQL2 的配置，传入数据库类型以及数据库配置
+// 必须提供数据库的类型，否则这个模块便失去了意义
 const tools = createTools<MyDatabase>({
     host: "x.x.x.x",
     user: "root",
@@ -274,7 +286,7 @@ const { pool, promisePool, query, insert, select, update, remove, count } = tool
 
 这五个是 `easy-mysql-tools` 提供的几种方法，这几种方法参数类型相同，均可以提供两个参数
 
-第一个参数为[QueryConfig](#配置)，必须提供
+**第一个参数为配置[QueryConfig](#配置)，必须提供**
 
 第二个参数为回调函数[Callback](#回调函数)，可选，为进阶功能
 
@@ -282,23 +294,23 @@ const { pool, promisePool, query, insert, select, update, remove, count } = tool
 
 下面介绍**只提供第一个 Config 参数的情况下，五个函数的返回值类型**
 
-### insert(config)
+## insert(config)
 
 返回值类型为 `Promise<number | undefined>`，插入成功返回插入的 `insertId` 值，也就是那一条新纪录的 `id` 值，插入失败或者报错返回 `Promise<undefined>`
 
-### select(config)
+## select(config)
 
 返回值为记录的数组 `Promise<singleRecord[]>`，当提供了 `whiteList` 时，每条记录只包含 `whiteList` 所含字段，如果没有则包含数据表所有的字段，查询失败或者报错返回空数组 `Promise<[]>`
 
-### update(config)
+## update(config)
 
 返回值为 `Promise<number>`，更新成功则返回更新的记录数 `affectedRows` 值，更新失败或者报错返回 `Promise<0>`
 
-### remove(config)
+## remove(config)
 
 返回值为 `Promise<number>`，删除成功则返回删除的记录数 `affectedRows` 值，删除失败或者报错返回 `Promise<0>`
 
-### count(config)
+## count(config)
 
 返回值为 `Promise<number>`，统计符合条件的记录数，统计失败或者报错返回 `Promise<0>`
 
