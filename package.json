@@ -1,6 +1,6 @@
 {
     "name": "easy-mysql-tools",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "license": "MIT",
@@ -18,5 +18,9 @@
     "devDependencies": {
         "typescript": "^4.7.4"
     },
-    "keywords": ["mysql", "mysql2", "typescript"]
+    "keywords": [
+        "mysql",
+        "mysql2",
+        "typescript"
+    ]
 }
