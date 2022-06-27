@@ -2,6 +2,8 @@
 
 ## 介绍
 
+MySQL 常用的增删改查工具合集，提升 MySQL 在 TypeScript 中的使用体验
+
 1. 基于 [TypeScript](https://www.npmjs.com/package/typescript) 和 [MySQL2](https://www.npmjs.com/package/mysql2)
 2. 包含了简单的增删改查等基本功能
 3. 使用了 `MySQL2`模块 的 `escape` 功能，避免注入
