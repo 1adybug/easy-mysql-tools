@@ -43,59 +43,54 @@ const tools = createTools<MyDatabase>({
     database: "mydatabase"
 })
 
-const { select } = tools
+const { insert, select, update, remove, count } = tools
 
-async function app() {
-    const result = await select({
-
-        // 这里会自动提供所有的表名供你使用
-        tableName: "userTable",
-
+select({
+    // 这里会自动提供所有的表名供你使用
+    tableName: "userTable",
+    // 这里会自动提供已选表所有的字段供你使用
+    where: {
+        // 你可以直接提供一个值，表示等于的情况
+        id: 123,
+        // 也可以使用对象来表示，小于大于等比较运算符
+        age: {
+            equal: ">=",
+            value: 18
+        },
+        intrd: {
+            equal: "!=",
+            value: null
+        }
+    },
+    order: {
         // 这里会自动提供已选表所有的字段供你使用
-        where: {
-
-            // 你可以直接提供一个值，表示等于的情况
-            id: 123,
-
-            // 也可以使用对象来表示，小于大于等比较运算符
-            age: {
-                equal: ">=",
-                value: 18
-            },
-            intrd: {
-                equal: "!=",
-                value: null
-            }
-        },
-        order: {
-
-            // 这里会自动提供已选表所有的字段供你使用
-            field: "age",
-
-            // desc 或者 asc
-            method: "desc"
-        },
-        limit: {
-            offset: 6,
-            count: 2
-        },
-
-        // 这里会自动提供已选表所有的字段供你使用
-        // 如果你使用 whiteList，只会选取列表中字段
-        whiteList: ["id", "username", "email"],
-        
-        // 如果你想要将 MySQL 返回的 null 数据自动转换为 undefined，可以开启这一项，默认不开启
-        transformNullToUndefined: true
-    })
-
-    // TypeScript 可以自动识别出 result 的类型
-    typeof result = {
+        field: "age",
+        // desc 或者 asc
+        method: "desc"
+    },
+    limit: {
+        offset: 6,
+        count: 2
+    },
+    // 这里会自动提供已选表所有的字段供你使用
+    // 如果你使用 whiteList，只会选取列表中字段
+    whiteList: ["id", "username", "email"],
+    // 如果你想要将 MySQL 返回的 null 数据自动转换为 undefined，可以开启这一项，默认不开启
+    transformNullToUndefined: true
+}).then(data => {
+    // TypeScript 可以自动识别出查询 data 的类型
+    typeof data = {
         id: number,
         username: string,
         email: string
     }
-}
+})
+
+
+
 ```
+
+`insert`、`select`、`update`、`remove`、`count` 五个方法的使用方式均一样，传入一个配置文件即可，比如 `count(config)`
 
 ## 配置
 
@@ -236,12 +231,12 @@ type TransformNullToUndefined = boolen
 
 ## 方法
 
-所有的方法都在由 `createTools` 创建的对象中，必须提供泛型以及函数参数，泛型为你的数据库类型（**不要使用 interface，请使用 type 定义**），函数参数同 `MySQL2` 的配置
+所有的方法都在由 `createTools` 创建的对象中，使用 `createTools` 必须提供泛型参数以及函数参数。泛型为你的数据库类型（**不要使用 interface，请使用 type 定义**），函数参数同 `MySQL2` 的配置
 
 ```typescript
 import { createTools } from "easy-mysql-tools"
 
-// 定义你的数据结构，不要使用 interface
+// 定义你的数据库结构，不要使用 interface
 type MyDatabase = {
     userTable: {
         id: number,
@@ -258,7 +253,7 @@ type MyDatabase = {
     }
 }
 
-// 配置同 MySQL2 的配置
+// 配置同 MySQL2 的配置，传入数据库类型以及数据库配置
 const tools = createTools<MyDatabase>({
     host: "x.x.x.x",
     user: "root",
@@ -269,19 +264,19 @@ const tools = createTools<MyDatabase>({
 const { pool, promisePool, query, insert, select, update, remove, count } = tools
 ```
 
-### pool、promisePool 以及 query
+### pool、promisePool 以及 query 三者
 
 这三者是 `MySQL2` 模块的对象或者方法，下方用 `mysql` 代表 `MySQL2` 模块的默认导出对象
 
 `pool` 等于 `mysql.createPool(options)`，`promisePool` 等于 `pool.promise()`，`query` 等于 `promisePool.query`。当你不满足于使用 `easy-mysql-tools` 的几种方法时，可以使用 `MySQL2` 的对象或者方法
 
-### insert、select、update、remove、count
+### insert、select、update、remove、count 五种方法
 
 这五个是 `easy-mysql-tools` 提供的几种方法，这几种方法参数类型相同，均可以提供两个参数
 
 第一个参数为[QueryConfig](#配置)，必须提供
 
-第二个参数为回调函数[Callback](#回调函数)，可选
+第二个参数为回调函数[Callback](#回调函数)，可选，为进阶功能
 
 **注意：这个五个方法内部都捕捉了错误，因此，即使查询出错，也会有默认的返回值，如果有抛出错误或者其他高级需求，请看回调函数[Callback](#回调函数)**
 
@@ -289,7 +284,7 @@ const { pool, promisePool, query, insert, select, update, remove, count } = tool
 
 ### insert(config)
 
-返回值类型为 `Promise<number | undefined>`，查询成功返回插入的 `insertId` 值，也就是那一条新纪录的 `id` 值，查询失败或者报错返回 `Promise<undefined>`
+返回值类型为 `Promise<number | undefined>`，插入成功返回插入的 `insertId` 值，也就是那一条新纪录的 `id` 值，插入失败或者报错返回 `Promise<undefined>`
 
 ### select(config)
 
@@ -337,3 +332,5 @@ insert(config, (error, result, data) => {
     return data
 })
 ```
+
+当然，TypeScript 依旧能够识别回调函数的返回值

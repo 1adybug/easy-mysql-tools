@@ -17,5 +17,6 @@
     },
     "devDependencies": {
         "typescript": "^4.7.4"
-    }
+    },
+    "keywords": ["mysql", "mysql2", "typescript"]
 }
