@@ -71,6 +71,7 @@ type Callback<T, K> = (error?: any, result?: [mysql.RowDataPacket[] | mysql.RowD
 function getConditionString(config: ConditionConfig) {
     const { where, order, limit } = config
     const whereFieldList: string[] = []
+    const wherePlaceList: number[] = []
     const whereValueList: BaseType[] = []
     if (where) {
         if (Array.isArray(where)) {
@@ -105,7 +106,8 @@ function getConditionString(config: ConditionConfig) {
                     }
                 }
                 if (i !== where.length - 1) {
-                    whereFieldList[whereFieldList.length - 1] += " or "
+                    // whereFieldList[whereFieldList.length - 1] += " or "
+                    wherePlaceList.push(whereFieldList.length - 1)
                 }
             }
         } else {
@@ -150,7 +152,11 @@ function getConditionString(config: ConditionConfig) {
         }
     }
     const limitString = limit ? "limit ?, ?" : ""
-    const queryString = `${whereFieldList.length ? "where" : ""} ${whereFieldList.join(" and ")} ${orderList.length ? "order by" : ""} ${orderList.join(", ")} ${limitString}`
+    const queryString = `${whereFieldList.length ? "where" : ""} ${whereFieldList.map((str, index, array) => {
+        if (index === array.length) return str
+        if (wherePlaceList.includes(index)) return `${str} or `
+        return `${str} and `
+    }).join("")} ${orderList.length ? "order by" : ""} ${orderList.join(", ")} ${limitString}`
     const valueList = [...whereValueList, ...(limit ? [limit.offset || 0, limit.count] : [])]
     return { queryString, valueList }
 }
