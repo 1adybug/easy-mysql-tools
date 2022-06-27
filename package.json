@@ -7,7 +7,7 @@
     "description": "Commonly used tools for mysql",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/1adybug/easy-mysql-tools"
     },
     "scripts": {
         "build": "npx tsc -p ."
