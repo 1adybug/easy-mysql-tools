@@ -351,3 +351,19 @@ insert(config, (error, result, data) => {
 ```
 
 当然，`TypeScript` 依旧能够识别回调函数的返回值类型
+
+## 默认配置
+
+```typescript
+import { setDefaultConfig } from "easy-mysql-tools"
+
+type DefaultCOnfig = {
+    transformNullToUndefined?: boolen
+}
+
+setDefaultConfig({
+    transformNullToUndefined: true
+})
+```
+
+暂时只支持 `transformNullToUndefined` 的默认配置

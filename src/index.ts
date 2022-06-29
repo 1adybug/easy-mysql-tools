@@ -36,7 +36,7 @@ type QueryConfig<UrDataBase extends DataBase, T extends keyof UrDataBase = keyof
         offset?: number,
         count: number
     },
-    data?: Partial<{[Key in keyof UrDataBase[T]]: UrDataBase[T][Key] | null}>,
+    data?: Partial<{ [Key in keyof UrDataBase[T]]: UrDataBase[T][Key] | null }>,
     whiteList?: K[],
     transformNullToUndefined?: boolean,
 }
@@ -161,6 +161,18 @@ function getConditionString(config: ConditionConfig) {
     return { queryString, valueList }
 }
 
+export type DefaultConfig = {
+    transformNullToUndefined?: boolean
+}
+
+export const defaultConfig: DefaultConfig = {
+    transformNullToUndefined: false
+}
+
+export const setDefaultConfig = (config: DefaultConfig) => {
+    defaultConfig.transformNullToUndefined = config.transformNullToUndefined
+}
+
 export const createTools = <UrDataBase extends DataBase>(options: PoolOptions) => {
     const pool = mysql.createPool(options)
     const promisePool = pool.promise()
@@ -211,7 +223,7 @@ export const createTools = <UrDataBase extends DataBase>(options: PoolOptions) =
             const { queryString, valueList } = getConditionString(config)
             const result = await query(`select ${whiteList && whiteList.length ? whiteList.join(", ") : "*"} from ${tableName as string} ${queryString}`, [...valueList])
             const value = result[0] as any
-            if (transformNullToUndefined) {
+            if (transformNullToUndefined || (transformNullToUndefined === undefined && defaultConfig.transformNullToUndefined)) {
                 for (const item of value) {
                     for (const key in item) {
                         if (item[key] === null) {
