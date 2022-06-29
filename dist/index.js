@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTools = void 0;
+exports.createTools = exports.setDefaultConfig = exports.defaultConfig = void 0;
 const mysql2_1 = __importDefault(require("mysql2"));
 function getConditionString(config) {
     const { where, order, limit } = config;
@@ -92,11 +92,11 @@ function getConditionString(config) {
     if (order) {
         if (Array.isArray(order)) {
             for (const item of order) {
-                orderList.push(`${item.field} ${item.method}`);
+                orderList.push(`${item.field} ${item.method || "asc"}`);
             }
         }
         else {
-            orderList.push(`${order.field} ${order.method}`);
+            orderList.push(`${order.field} ${order.method || "asc"}`);
         }
     }
     const limitString = limit ? "limit ?, ?" : "";
@@ -110,6 +110,13 @@ function getConditionString(config) {
     const valueList = [...whereValueList, ...(limit ? [limit.offset || 0, limit.count] : [])];
     return { queryString, valueList };
 }
+exports.defaultConfig = {
+    transformNullToUndefined: false
+};
+const setDefaultConfig = (config) => {
+    exports.defaultConfig.transformNullToUndefined = config.transformNullToUndefined;
+};
+exports.setDefaultConfig = setDefaultConfig;
 const createTools = (options) => {
     const pool = mysql2_1.default.createPool(options);
     const promisePool = pool.promise();
@@ -155,7 +162,7 @@ const createTools = (options) => {
                 const { queryString, valueList } = getConditionString(config);
                 const result = yield query(`select ${whiteList && whiteList.length ? whiteList.join(", ") : "*"} from ${tableName} ${queryString}`, [...valueList]);
                 const value = result[0];
-                if (transformNullToUndefined) {
+                if (transformNullToUndefined || (transformNullToUndefined === undefined && exports.defaultConfig.transformNullToUndefined)) {
                     for (const item of value) {
                         for (const key in item) {
                             if (item[key] === null) {

@@ -38,6 +38,11 @@ declare type QueryConfig<UrDataBase extends DataBase, T extends keyof UrDataBase
     transformNullToUndefined?: boolean;
 };
 declare type Callback<T, K> = (error?: any, result?: [mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket | mysql.OkPacket[] | mysql.ResultSetHeader, mysql.FieldPacket[]] | null, value?: K) => T;
+export declare type DefaultConfig = {
+    transformNullToUndefined?: boolean;
+};
+export declare const defaultConfig: DefaultConfig;
+export declare const setDefaultConfig: (config: DefaultConfig) => void;
 export declare const createTools: <UrDataBase extends DataBase>(options: PoolOptions) => {
     pool: mysql.Pool;
     promisePool: import("mysql2/promise").Pool;
