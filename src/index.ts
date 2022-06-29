@@ -55,10 +55,10 @@ type ConditionConfig = {
     }[],
     order?: {
         field: string | symbol | number,
-        method: "desc" | "asc"
+        method?: "desc" | "asc"
     } | {
         field: string | symbol | number,
-        method: "desc" | "asc"
+        method?: "desc" | "asc"
     }[],
     limit?: {
         offset?: number,
@@ -145,10 +145,10 @@ function getConditionString(config: ConditionConfig) {
     if (order) {
         if (Array.isArray(order)) {
             for (const item of order) {
-                orderList.push(`${item.field as string} ${item.method}`)
+                orderList.push(`${item.field as string} ${item.method || "asc"}`)
             }
         } else {
-            orderList.push(`${order.field as string} ${order.method}`)
+            orderList.push(`${order.field as string} ${order.method || "asc"}`)
         }
     }
     const limitString = limit ? "limit ?, ?" : ""

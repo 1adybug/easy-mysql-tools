@@ -80,7 +80,7 @@ select({
     order: {
         // 这里会自动提供已选表所有的字段供你使用
         field: "age",
-        // desc 或者 asc
+        // desc 或者 asc，默认为 asc
         method: "desc"
     },
     limit: {
@@ -130,7 +130,7 @@ type TableName = "userTable" | "articleTable"
 
 ```typescript
 type Data = {
-    [Key in keyof MyDatabase["userTable"]]?: MyDatabase["userTable"][Key]
+    [Key in keyof MyDatabase["userTable"]]?: MyDatabase["userTable"][Key] | null
 }
 ```
 
@@ -140,7 +140,7 @@ type Data = {
 
 ```typescript
 type SingleWhere = {
-    [Key in keyof MyDatabase["userTable"]]: MyDatabase["userTable"][Key] | {
+    [Key in keyof MyDatabase["userTable"]]: MyDatabase["userTable"][Key] | null | {
         equal: "<" | "<=" | "=" | "!=" | ">=" | ">",
         value: MyDatabase["userTable"][Key]
     }
@@ -207,13 +207,14 @@ type Where = SingleWhere | SingleWhere[]
 ```typescript
 type SingleOrder = {
     field: keyof MyDatabase["userTable"],
-    method: "asc" | "desc"
+    // 默认为 asc
+    method?: "asc" | "desc"
 }
 
 type Order= SingleOrder | SingleOrder[]
 ```
 
-可选项，可以是单个排序方式，也可以是多个排序方式组成的数组
+可选项，默认排序方式为 `asc`，可以是单个排序方式，也可以是多个排序方式组成的数组
 
 ### limit
 
@@ -278,41 +279,43 @@ const tools = createTools<MyDatabase>({
 const { pool, promisePool, query, insert, select, update, remove, count } = tools
 ```
 
-### pool、promisePool 以及 query 三者
+### MySQL2 的导出对象
 
-这三者是 `MySQL2` 模块的对象或者方法，下方用 `mysql` 代表 `MySQL2` 模块的默认导出对象
+`pool`、`promisePool`、`query` 这三者是使用 `MySQL2` 模块创建的对象或者方法
 
 `pool` 等于 `mysql.createPool(options)`，`promisePool` 等于 `pool.promise()`，`query` 等于 `promisePool.query`。当你不满足于使用 `easy-mysql-tools` 的几种方法时，可以使用 `MySQL2` 的对象或者方法
 
-### insert、select、update、remove、count 五种方法
+### Easy-MySQL-Tools 的导出方法
 
-这五个是 `easy-mysql-tools` 提供的几种方法，这几种方法参数类型相同，均可以提供两个参数
+`insert`、`select`、`update`、`remove`、`count` 这五个是 `easy-mysql-tools` 提供的方法。
 
-**第一个参数为配置[QueryConfig](#配置)，必须提供**
+这几种方法参数类型相同，均可以提供两个参数：
 
-第二个参数为回调函数[Callback](#回调函数)，可选，为进阶功能
+**第一个参数：配置[QueryConfig](#配置)，必须提供**
+
+第二个参数：回调函数[Callback](#回调函数)，可选，为进阶功能
 
 **注意：这个五个方法内部都捕捉了错误，因此，即使查询出错，也会有默认的返回值，如果有抛出错误或者其他高级需求，请看回调函数[Callback](#回调函数)**
 
-下面介绍**只提供第一个 Config 参数的情况下，五个函数的返回值类型**
+下面介绍**只提供第一个 Config 参数的情况下，五个函数的返回值类型：**
 
-## insert(config)
+### 插入 · insert(config)
 
 返回值类型为 `Promise<number | undefined>`，插入成功返回插入的 `insertId` 值，也就是那一条新纪录的 `id` 值，插入失败或者报错返回 `Promise<undefined>`
 
-## select(config)
+### 选取 · select(config)
 
 返回值为记录的数组 `Promise<singleRecord[]>`，当提供了 `whiteList` 时，每条记录只包含 `whiteList` 所含字段，如果没有则包含数据表所有的字段，查询失败或者报错返回空数组 `Promise<[]>`
 
-## update(config)
+### 更新 · update(config)
 
 返回值为 `Promise<number>`，更新成功则返回更新的记录数 `affectedRows` 值，更新失败或者报错返回 `Promise<0>`
 
-## remove(config)
+### 删除 · remove(config)
 
 返回值为 `Promise<number>`，删除成功则返回删除的记录数 `affectedRows` 值，删除失败或者报错返回 `Promise<0>`
 
-## count(config)
+### 计数 · count(config)
 
 返回值为 `Promise<number>`，统计符合条件的记录数，统计失败或者报错返回 `Promise<0>`
 
@@ -342,9 +345,9 @@ insert(config, (error, result, data) => {
         console.log(error)
     }
 
-    // 注意回调函数的返回值，将会是查询方法的返回值
+    // 注意：回调函数的返回值，将会是查询方法的返回值
     return data
 })
 ```
 
-当然，TypeScript 依旧能够识别回调函数的返回值
+当然，`TypeScript` 依旧能够识别回调函数的返回值类型
