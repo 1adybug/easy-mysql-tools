@@ -114,7 +114,10 @@ exports.defaultConfig = {
     transformNullToUndefined: false
 };
 const setDefaultConfig = (config) => {
-    exports.defaultConfig.transformNullToUndefined = config.transformNullToUndefined;
+    // defaultConfig.transformNullToUndefined = config.transformNullToUndefined
+    for (const i of Object.keys(config)) {
+        exports.defaultConfig[i] = config[i];
+    }
 };
 exports.setDefaultConfig = setDefaultConfig;
 const createTools = (options) => {
@@ -199,7 +202,7 @@ const createTools = (options) => {
                     }
                 }
                 const { queryString, valueList } = getConditionString(config);
-                const result = yield query(`update ${tableName} set ${setFieldList.join(", ")} ${queryString}`, [...setValueList, ...valueList]);
+                const result = yield query(`update ${tableName} set ${setFieldList.map(field => `${field} = ?`).join(", ")} ${queryString}`, [...setValueList, ...valueList]);
                 const value = result[0].affectedRows;
                 if (callback) {
                     return callback(null, result, value);

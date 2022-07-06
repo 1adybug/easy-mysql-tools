@@ -170,7 +170,10 @@ export const defaultConfig: DefaultConfig = {
 }
 
 export const setDefaultConfig = (config: DefaultConfig) => {
-    defaultConfig.transformNullToUndefined = config.transformNullToUndefined
+    // defaultConfig.transformNullToUndefined = config.transformNullToUndefined
+    for (const i of Object.keys(config)) {
+        defaultConfig[i as keyof DefaultConfig] = config[i as keyof DefaultConfig]
+    }
 }
 
 export const createTools = <UrDataBase extends DataBase>(options: PoolOptions) => {
@@ -262,7 +265,7 @@ export const createTools = <UrDataBase extends DataBase>(options: PoolOptions) =
                 }
             }
             const { queryString, valueList } = getConditionString(config)
-            const result = await query(`update ${tableName as string} set ${setFieldList.join(", ")} ${queryString}`, [...setValueList, ...valueList])
+            const result = await query(`update ${tableName as string} set ${setFieldList.map(field => `${field} = ?`).join(", ")} ${queryString}`, [...setValueList, ...valueList])
             const value = (result[0] as ResultSetHeader).affectedRows
             if (callback) {
                 return callback(null, result, value)
