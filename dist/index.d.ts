@@ -22,10 +22,10 @@ declare type QueryConfig<UrDataBase extends DataBase, T extends keyof UrDataBase
     }[];
     order?: {
         field: keyof UrDataBase[T];
-        method: "desc" | "asc";
+        method?: "desc" | "asc";
     } | {
         field: keyof UrDataBase[T];
-        method: "desc" | "asc";
+        method?: "desc" | "asc";
     }[];
     limit?: {
         offset?: number;
